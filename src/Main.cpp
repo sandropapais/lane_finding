@@ -9,10 +9,10 @@ Longer description here...
 using namespace cv;
 using namespace std;
 
-int main()
+int main(void)
 {
     // Read image
-    Mat img = imread("test_images/solidWhiteRight.jpg");
+    Mat img = imread("test_images/solidWhiteRight.jpg",IMREAD_COLOR);
     
     // Error handling
     if (img.empty())
@@ -20,52 +20,35 @@ int main()
         cout << "Could not open the image" << endl;
         return -1;
     }
-    
-    
-    // Set region of interest
+        
+    // Get image dimensions
     int w = img.size().width;
     int h = img.size().height;
-    Rect roi;
-    roi.x = w/8;        // top left corner
-    roi.y = h/2;
-    roi.width = 3*w/4;    // dimensions
-    roi.height = h/2;
     
-    
+    // Initialize and declare matrices
     Mat imgMask = Mat::zeros(h, w, CV_8UC1);
-    //Mat vertices = (Mat_<double>(4,2) << 0, 0, w, 0, w, h, 0,h);
-    //cout << vertices << endl; 
+    Mat imgMasked;
 
-    /*
-    int vertices[4][2] = {
-        0, 0, 
-        w, 0, 
-        w, h, 
-        0, h
-    };
-    for (int i=0; i<4; i++)
-        for (int j=0; j<2; j++){
-            cout << vertices[i][j] << endl;
-        }
-    */
-   
-
-    //int ignore_mask_color = (2^8)-1;
-    //void fillPoly(Mat& imgMask, const Point**)
-    //namedWindow("Mask");
-    //imshow("Mask", imgMask);
+    // Create mask
+    int lineType = LINE_8;
+    Point vertices[1][3]; 
+    vertices[0][0] = Point(0, h);
+    vertices[0][1] = Point(w/2, h/2);
+    vertices[0][2] = Point(w, h);
+    const Point* ppt[1] = {vertices[0]};
+    int npt[] = {3};
+    fillPoly(imgMask, ppt, npt, 1, Scalar(255,255,255), lineType);
     
-    
-    // Crop the original image to the defined ROI
-    Mat imgCrop = img(roi);
+    // Mask image
+    bitwise_and(img, img, imgMasked, imgMask);
     
     // Create windows and show image    
     namedWindow("Raw Image");
     imshow("Raw Image", img);
-    namedWindow("Cropped Image");
-    imshow("Cropped Image", imgCrop);
-    
-    //cout << img << endl;
+    namedWindow("Mask");
+    imshow("Mask", imgMask);
+    namedWindow("Masked Image");
+    imshow("Masked Image", imgMasked);
     
     waitKey(0);
     
