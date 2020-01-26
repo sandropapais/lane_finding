@@ -9,8 +9,11 @@ Longer description here...
 using namespace cv;
 using namespace std;
 
+void Mask(Mat img, Mat *imgMasked, int w, int h);
+
 int main(void)
 {
+    
     // Read image
     Mat img = imread("test_images/solidWhiteRight.jpg",IMREAD_COLOR);
     
@@ -24,33 +27,40 @@ int main(void)
     // Get image dimensions
     int w = img.size().width;
     int h = img.size().height;
-    
-    // Initialize and declare matrices
-    Mat imgMask = Mat::zeros(h, w, CV_8UC1);
+        
+    // Create masked image
     Mat imgMasked;
-
-    // Create mask
-    int lineType = LINE_8;
-    Point vertices[1][3]; 
-    vertices[0][0] = Point(0, h);
-    vertices[0][1] = Point(w/2, h/2);
-    vertices[0][2] = Point(w, h);
-    const Point* ppt[1] = {vertices[0]};
-    int npt[] = {3};
-    fillPoly(imgMask, ppt, npt, 1, Scalar(255,255,255), lineType);
-    
-    // Mask image
-    bitwise_and(img, img, imgMasked, imgMask);
+    Mask(img, &imgMasked, w, h);
     
     // Create windows and show image    
     namedWindow("Raw Image");
     imshow("Raw Image", img);
-    namedWindow("Mask");
-    imshow("Mask", imgMask);
     namedWindow("Masked Image");
     imshow("Masked Image", imgMasked);
     
     waitKey(0);
     
     return 0;
+}
+
+
+void Mask(Mat img, Mat *imgMasked, int w, int h){
+    
+    // Initialize mask
+    Mat imgMask = Mat::zeros(h, w, CV_8UC1);
+
+    // Define edge points of polygon for image mask
+    Point vertices[1][3]; 
+    vertices[0][0] = Point(0, h);
+    vertices[0][1] = Point(w/2, h/2);
+    vertices[0][2] = Point(w, h);
+    
+    // Create image mask
+    int lineType = LINE_8;
+    const Point* ppt[1] = {vertices[0]};
+    int npt[] = {3};
+    fillPoly(imgMask, ppt, npt, 1, Scalar(255,255,255), lineType);
+    
+    // Create masked image
+    bitwise_and(img, img, *imgMasked, imgMask);
 }
