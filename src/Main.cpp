@@ -3,8 +3,10 @@
 Longer description here...
 */
 
-#include <opencv2/opencv.hpp>
 #include <iostream>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 
 using namespace cv;
 using namespace std;
@@ -27,17 +29,41 @@ int main(void)
     // Get image dimensions
     int w = img.size().width;
     int h = img.size().height;
-        
+    
+    // Gray scale image
+    Mat imgGray;
+    cvtColor(img,imgGray,COLOR_RGB2GRAY,0);
+    
+    // Canny edge detection
+    Mat imgCanny;
+    Canny(imgGray,imgCanny,50,200);
+    
     // Create masked image
     Mat imgMasked;
-    Mask(img, &imgMasked, w, h);
+    Mask(imgCanny, &imgMasked, w, h);
+    
+    // Probabilistic line transform
+    vector<Vec4i> linesP;
+    HoughLinesP(imgMasked, linesP, 1, CV_PI/180, 50, 50, 10);
+    
+    // Draw lines
+    Mat imgLines;
+    cvtColor(imgMasked, imgLines, COLOR_GRAY2RGB);
+    for(size_t i=0; i<linesP.size(); i++){
+        Vec4i l = linesP[i];
+        line(imgLines, Point(l[0],l[1]), Point(l[2],l[3]), Scalar(0,0,255), 3, LINE_AA);
+    }
     
     // Create windows and show image    
-    namedWindow("Raw Image");
-    imshow("Raw Image", img);
-    namedWindow("Masked Image");
-    imshow("Masked Image", imgMasked);
-    
+    namedWindow("Raw");
+    imshow("Raw", img);
+    namedWindow("Edge Detection");
+    imshow("Edge Detection", imgCanny);
+    namedWindow("Masked");
+    imshow("Masked", imgMasked);
+    namedWindow("Lines");
+    imshow("Lines", imgLines);
+
     waitKey(0);
     
     return 0;
