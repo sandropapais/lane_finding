@@ -4,6 +4,7 @@ Longer description here...
 */
 
 #include <iostream>
+#include <opencv2/core/utility.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
@@ -15,9 +16,19 @@ void Mask(Mat img, Mat *imgMasked, int w, int h);
 
 int main(void)
 {
+    // Get all images
+    vector<String> files;
+    glob("/home/sandro/Dev/lane_finding/test_images/*.jpg", files);
+    vector<Mat> images;
+    size_t count = files.size(); // number of images in folder
+    for (size_t i=0; i<count; i++)
+        {
     
+    //    images.push_back(imread(files[i]));
+
     // Read image
-    Mat img = imread("test_images/solidWhiteRight.jpg",IMREAD_COLOR);
+    //Mat img = imread("test_images/solidWhiteRight.jpg",IMREAD_COLOR);
+    Mat img = imread(files[i]);
     
     // Error handling
     if (img.empty())
@@ -63,8 +74,12 @@ int main(void)
     imshow("Masked", imgMasked);
     namedWindow("Lines");
     imshow("Lines", imgLines);
-
+    
     waitKey(0);
+
+    
+    }
+
     
     return 0;
 }
