@@ -12,96 +12,75 @@ Longer description here...
 using namespace cv;
 using namespace std;
 
-void Mask(Mat img, Mat *imgMasked, int w, int h);
+void lanefinding(Mat img);
 
 int main(void)
 {
-    // Get all images
-    vector<String> files;
-    glob("/home/sandro/Dev/lane_finding/test_images/*.jpg", files);
-    vector<Mat> images;
-    size_t count = files.size(); // number of images in folder
-    for (size_t i=0; i<count; i++)
-        {
+    enum mode {modeImages, modeVideo};
+    mode setMode = modeImages;
     
-    //    images.push_back(imread(files[i]));
-
-    // Read image
-    //Mat img = imread("test_images/solidWhiteRight.jpg",IMREAD_COLOR);
-    Mat img = imread(files[i]);
-    
-    // Error handling
-    if (img.empty())
+    if (setMode == modeVideo) 
     {
-        cout << "Could not open the image" << endl;
-        return -1;
-    }
+    
+        // Get all images
+        vector<String> files;
+        glob("/home/sandro/Dev/lane_finding/test_images/*.jpg", files);
+        vector<Mat> images;
+        size_t count = files.size(); // number of images in folder     
         
-    // Get image dimensions
-    int w = img.size().width;
-    int h = img.size().height;
-    
-    // Gray scale image
-    Mat imgGray;
-    cvtColor(img,imgGray,COLOR_RGB2GRAY,0);
-    
-    // Canny edge detection
-    Mat imgCanny;
-    Canny(imgGray,imgCanny,50,200);
-    
-    // Create masked image
-    Mat imgMasked;
-    Mask(imgCanny, &imgMasked, w, h);
-    
-    // Probabilistic line transform
-    vector<Vec4i> linesP;
-    HoughLinesP(imgMasked, linesP, 1, CV_PI/180, 50, 50, 10);
-    
-    // Draw lines
-    Mat imgLines;
-    cvtColor(imgMasked, imgLines, COLOR_GRAY2RGB);
-    for(size_t i=0; i<linesP.size(); i++){
-        Vec4i l = linesP[i];
-        line(imgLines, Point(l[0],l[1]), Point(l[2],l[3]), Scalar(0,0,255), 3, LINE_AA);
+        for (size_t i=0; i<count; i++)
+        {              
+                                                        
+            // Read image      
+            Mat img = imread(files[i]);
+            
+            // Error handling
+            if (img.empty())
+            {
+                cout << "Could not open the image" << endl;
+                cin.get();
+                return -1;
+            }
+                
+            lanefinding(img);
+            
+            waitKey(0);
+            
+        }
     }
-    
-    // Create windows and show image    
-    namedWindow("Raw");
-    imshow("Raw", img);
-    namedWindow("Edge Detection");
-    imshow("Edge Detection", imgCanny);
-    namedWindow("Masked");
-    imshow("Masked", imgMasked);
-    namedWindow("Lines");
-    imshow("Lines", imgLines);
-    
-    waitKey(0);
+    else
+    {
+        // Open video file
+        VideoCapture cap("test_video/solidWhiteRight.mp4");
+        
+        // Error handling
+        if (cap.isOpened() == false)
+        {
+            cout << "Cannot open video file" << endl;
+            cin.get();
+            return -1;
+        }
+        
+        // Initialize variables
+        Mat img;
+        bool readSuccess = true;
+        
+        // skip to 8 seconds
+        cap.set(CAP_PROP_POS_MSEC, 8000); 
+        
+        while (readSuccess)
+        {
+            readSuccess = cap.read(img); // read a new frame form video
+            
+            lanefinding(img);
+            
+            waitKey(0);
 
-    
+        }
+        
     }
-
     
     return 0;
 }
 
 
-void Mask(Mat img, Mat *imgMasked, int w, int h){
-    
-    // Initialize mask
-    Mat imgMask = Mat::zeros(h, w, CV_8UC1);
-
-    // Define edge points of polygon for image mask
-    Point vertices[1][3]; 
-    vertices[0][0] = Point(0, h);
-    vertices[0][1] = Point(w/2, h/2);
-    vertices[0][2] = Point(w, h);
-    
-    // Create image mask
-    int lineType = LINE_8;
-    const Point* ppt[1] = {vertices[0]};
-    int npt[] = {3};
-    fillPoly(imgMask, ppt, npt, 1, Scalar(255,255,255), lineType);
-    
-    // Create masked image
-    bitwise_and(img, img, *imgMasked, imgMask);
-}
