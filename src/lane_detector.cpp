@@ -100,8 +100,19 @@ void lanefinding(cv::Mat &img){
             right_b[0][0] = cv::Point(lineRfit[2],lineRfit[3]);
             
             // Create left and right line from regression
-            std::cout << left_m << "," << left_b[0][0] << std::endl;
-            std::cout << right_m << "," << right_b[0][0] << std::endl;
+            cv::Point leftlanepts[1][2];
+            cv::Point rightlanepts[1][2];
+            int leftx0 = (h-left_b[0][0].y)/left_m + left_b[0][0].x;
+            int rightx0 = (h-right_b[0][0].y)/right_m + right_b[0][0].x;
+            int leftx1 = (6*h/10-left_b[0][0].y)/left_m + left_b[0][0].x;
+            int rightx1 = (6*h/10-right_b[0][0].y)/right_m + right_b[0][0].x;
+            leftlanepts[0][0] = cv::Point(leftx0,h);
+            leftlanepts[1][1] = cv::Point(leftx1,6*h/10);
+            rightlanepts[0][0] = cv::Point(rightx0,h);
+            rightlanepts[1][1] = cv::Point(rightx1,6*h/10);
+            std::cout << leftlanepts[0][0] << "," << leftlanepts[1][1] << std::endl;
+            std::cout << rightlanepts[0][0] << "," << rightlanepts[1][1] << std::endl;
+            std::cout << w << "," << h << std::endl;
             
             // Draw lines
             cv::Mat imgLines;
@@ -123,11 +134,8 @@ void lanefinding(cv::Mat &img){
                 l = linesR[i];
                 line(imgLines, cv::Point(l[0],l[1]), cv::Point(l[2],l[3]), cv::Scalar(255,0,0), 3, cv::LINE_AA);
             }
-            //std::cout << lineRfit << std::endl;
-            //l = lineRfit[0];
-            //line(imgLines, cv::Point(l[0],l[1]), cv::Point(l[2],l[3]), cv::Scalar(0,255,0), 3, cv::LINE_AA);
-            //l = lineRfit[0];
-            //line(imgLines, cv::Point(l[0],l[1]), cv::Point(l[2],l[3]), cv::Scalar(0,255,0), 3, cv::LINE_AA);
+            line(imgLines, leftlanepts[0][0], leftlanepts[1][1], cv::Scalar(0,255,0), 3, cv::LINE_AA);
+            line(imgLines, rightlanepts[0][0], rightlanepts[1][1], cv::Scalar(0,255,0), 3, cv::LINE_AA);
             
         
             // Create windows and show image    
