@@ -6,10 +6,10 @@
 #include <opencv2/opencv.hpp>
  
 void Mask(cv::Mat img, cv::Mat &imgMasked, int w, int h);
-void lanefinding(cv::Mat &img);
+cv::Mat lanefinding(cv::Mat &img);
 
 
-void lanefinding(cv::Mat &img){
+cv::Mat lanefinding(cv::Mat &img){
             // Get image dimensions
             int w = img.size().width;
             int h = img.size().height;
@@ -104,12 +104,12 @@ void lanefinding(cv::Mat &img){
             cv::Point rightlanepts[1][2];
             int leftx0 = (h-left_b[0][0].y)/left_m + left_b[0][0].x;
             int rightx0 = (h-right_b[0][0].y)/right_m + right_b[0][0].x;
-            int leftx1 = (6*h/10-left_b[0][0].y)/left_m + left_b[0][0].x;
-            int rightx1 = (6*h/10-right_b[0][0].y)/right_m + right_b[0][0].x;
+            int leftx1 = (0.6*h-left_b[0][0].y)/left_m + left_b[0][0].x;
+            int rightx1 = (0.6*h-right_b[0][0].y)/right_m + right_b[0][0].x;
             leftlanepts[0][0] = cv::Point(leftx0,h);
-            leftlanepts[1][1] = cv::Point(leftx1,6*h/10);
+            leftlanepts[1][1] = cv::Point(leftx1,0.6*h);
             rightlanepts[0][0] = cv::Point(rightx0,h);
-            rightlanepts[1][1] = cv::Point(rightx1,6*h/10);
+            rightlanepts[1][1] = cv::Point(rightx1,0.6*h);
             std::cout << leftlanepts[0][0] << "," << leftlanepts[1][1] << std::endl;
             std::cout << rightlanepts[0][0] << "," << rightlanepts[1][1] << std::endl;
             std::cout << w << "," << h << std::endl;
@@ -136,7 +136,6 @@ void lanefinding(cv::Mat &img){
             }
             line(imgLines, leftlanepts[0][0], leftlanepts[1][1], cv::Scalar(0,255,0), 3, cv::LINE_AA);
             line(imgLines, rightlanepts[0][0], rightlanepts[1][1], cv::Scalar(0,255,0), 3, cv::LINE_AA);
-            
         
             // Create windows and show image    
             cv::namedWindow("Raw");
@@ -147,6 +146,8 @@ void lanefinding(cv::Mat &img){
             imshow("Masked", imgMasked);
             cv::namedWindow("Lines");
             imshow("Lines", imgLines);
+            
+            return imgLines;
 }
 
 void Mask(cv::Mat img, cv::Mat &imgMasked, int w, int h){
@@ -157,7 +158,7 @@ void Mask(cv::Mat img, cv::Mat &imgMasked, int w, int h){
     // Define edge points of polygon for image mask
     cv::Point vertices[1][3]; 
     vertices[0][0] = cv::Point(0, h);
-    vertices[0][1] = cv::Point(w/2, h/2);
+    vertices[0][1] = cv::Point(w/2, 0.55*h);
     vertices[0][2] = cv::Point(w, h);
     
     // Create image mask

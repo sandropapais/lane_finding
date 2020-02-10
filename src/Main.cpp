@@ -11,7 +11,7 @@ Longer description here...
 
 //using namespace cv;
 
-void lanefinding(cv::Mat &img);
+cv::Mat lanefinding(cv::Mat &img);
 
 int main(void)
 {
@@ -47,7 +47,7 @@ int main(void)
     }
     else
     {
-        // Open video file
+        // Create video read file
         cv::VideoCapture cap("test_video/solidWhiteRight.mp4");
         
         // Error handling
@@ -60,18 +60,38 @@ int main(void)
         
         // Initialize variables
         cv::Mat img;
-        bool readSuccess = true;
+        //bool readSuccess = true;
+        bool readSuccess = cap.read(img); // read first image
         
         // skip to 8 seconds
-        cap.set(cv::CAP_PROP_POS_MSEC, 8000); 
+        //cap.set(cv::CAP_PROP_POS_MSEC, 8000); 
+        
+        // Create video write file
+        cv::VideoWriter writer;
+        int codec = cv::VideoWriter::fourcc('M','J','P','G');
+        double fps = 10; //cap.get(cv::CAP_PROP_FPS);
+        std::string writefilename = "./test.mp4";
+        writer.open(writefilename, codec, fps, img.size(), 1);
+        
+        // Error handling
+        if (!writer.isOpened()) {
+            std::cout << "Cannot open video file" << std::endl;
+            std::cin.get();
+            return -1;
+        }
         
         while (readSuccess)
         {
+            
+            
+            cv::Mat imgLines;
+            imgLines = lanefinding(img);
+            
+            //cv::waitKey(0); // for debugging
+            
+            writer.write(imgLines);
+            
             readSuccess = cap.read(img); // read a new frame form video
-            
-            lanefinding(img);
-            
-            cv::waitKey(0);
 
         }
         
