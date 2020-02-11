@@ -69,8 +69,8 @@ int main(void)
         // Create video write file
         cv::VideoWriter writer;
         int codec = cv::VideoWriter::fourcc('M','J','P','G');
-        double fps = 10; //cap.get(cv::CAP_PROP_FPS);
-        std::string writefilename = "./test.mp4";
+        double fps = 25; //cap.get(cv::CAP_PROP_FPS);
+        std::string writefilename = "./test.avi";
         writer.open(writefilename, codec, fps, img.size(), 1);
         
         // Error handling
