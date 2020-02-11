@@ -1,9 +1,8 @@
 #include <iostream>
-//#include <opencv2/core/utility.hpp>
-//#include <opencv2/imgcodecs.hpp>
-//#include <opencv2/imgproc.hpp>
-//#include <opencv2/highgui.hpp>
-#include <opencv2/opencv.hpp>
+#include <opencv2/core/utility.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
  
 void Mask(cv::Mat img, cv::Mat &imgMasked, int w, int h);
 cv::Mat lanefinding(cv::Mat &img);
@@ -32,7 +31,6 @@ cv::Mat lanefinding(cv::Mat &img){
             
             // Probabilistic line transform
             std::vector<cv::Vec4i> linesP;
-            //cv::HoughLinesP(imgMasked, linesP, 1, CV_PI/180, 50, 50, 10);
             cv::HoughLinesP(imgMasked, linesP, 1, CV_PI/180, 20, 20, 30);
             
             // Filter and sort lines
@@ -48,21 +46,16 @@ cv::Mat lanefinding(cv::Mat &img){
                 x1 = linesP[i][2];
                 y1 = linesP[i][3];
                 slopes.push_back((y1-y0)/(x1-x0));
-                //std::cout << linesP[i] << std::endl;
-                //std::cout << slopes[i] << std::endl;
                 if (slopes[i] > slopeThresh)
                 {
                     linesL.push_back(linesP[i]);
-                    //std::cout << "left line"<< std::endl;
                 }
                 else if (slopes[i] < -slopeThresh)
                 {
                     linesR.push_back(linesP[i]);
-                    //std::cout << "right line"<< std::endl;
                 }
-                else
+                else // do nothing with discarded lines 
                 {
-                    //std::cout << "line discarded"<< std::endl;
                 }
             }
             
@@ -110,30 +103,27 @@ cv::Mat lanefinding(cv::Mat &img){
             leftlanepts[1][1] = cv::Point(leftx1,0.6*h);
             rightlanepts[0][0] = cv::Point(rightx0,h);
             rightlanepts[1][1] = cv::Point(rightx1,0.6*h);
-            std::cout << leftlanepts[0][0] << "," << leftlanepts[1][1] << std::endl;
-            std::cout << rightlanepts[0][0] << "," << rightlanepts[1][1] << std::endl;
-            std::cout << w << "," << h << std::endl;
             
             // Draw lines
             cv::Mat imgLines;
             cv::cvtColor(imgMasked, imgLines, cv::COLOR_GRAY2RGB);
             
             imgLines = img;
-            for(size_t i=0; i<linesP.size(); i++)
-            {
-                l = linesP[i];
-                line(imgLines, cv::Point(l[0],l[1]), cv::Point(l[2],l[3]), cv::Scalar(0,0,255), 3, cv::LINE_AA);
-            }            
-            for(size_t i=0; i<linesL.size(); i++)
-            {
-                l = linesL[i];
-                line(imgLines, cv::Point(l[0],l[1]), cv::Point(l[2],l[3]), cv::Scalar(255,0,0), 3, cv::LINE_AA);
-            }
-            for(size_t i=0; i<linesR.size(); i++)
-            {
-                l = linesR[i];
-                line(imgLines, cv::Point(l[0],l[1]), cv::Point(l[2],l[3]), cv::Scalar(255,0,0), 3, cv::LINE_AA);
-            }
+//            for(size_t i=0; i<linesP.size(); i++)
+//            {
+//                l = linesP[i];
+//                line(imgLines, cv::Point(l[0],l[1]), cv::Point(l[2],l[3]), cv::Scalar(0,0,255), 3, cv::LINE_AA);
+//            }            
+//            for(size_t i=0; i<linesL.size(); i++)
+//            {
+//                l = linesL[i];
+//                line(imgLines, cv::Point(l[0],l[1]), cv::Point(l[2],l[3]), cv::Scalar(255,0,0), 3, cv::LINE_AA);
+//            }
+//            for(size_t i=0; i<linesR.size(); i++)
+//            {
+//                l = linesR[i];
+//                line(imgLines, cv::Point(l[0],l[1]), cv::Point(l[2],l[3]), cv::Scalar(255,0,0), 3, cv::LINE_AA);
+//            }
             line(imgLines, leftlanepts[0][0], leftlanepts[1][1], cv::Scalar(0,255,0), 3, cv::LINE_AA);
             line(imgLines, rightlanepts[0][0], rightlanepts[1][1], cv::Scalar(0,255,0), 3, cv::LINE_AA);
         

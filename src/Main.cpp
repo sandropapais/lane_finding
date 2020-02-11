@@ -16,14 +16,16 @@ cv::Mat lanefinding(cv::Mat &img);
 int main(void)
 {
     enum mode {modeImages, modeVideo};
-    mode setMode = modeImages;
     
-    if (setMode == modeVideo) 
+    mode setMode = modeVideo;
+    
+    // Mode 1: Image Processing (debug mode)
+    // Read image, process, show pipeline, wait for keystoke
+    if (setMode == modeImages) 
     {
-    
         // Get all images
         std::vector<std::string> files;
-        cv::glob("/home/sandro/Dev/lane_finding/test_images/*.jpg", files);
+        cv::glob("/home/sandro/Dev/lane_finding/input/*.jpg", files);
         size_t count = files.size(); // number of images in folder     
         
         for (size_t i=0; i<count; i++)
@@ -45,15 +47,17 @@ int main(void)
             
         }
     }
-    else
+    // Mode 2: Video Processing 
+    // Read, process, and write video frames
+    else if (setMode == modeVideo)
     {
         // Create video read file
-        cv::VideoCapture cap("test_video/solidWhiteRight.mp4");
+        cv::VideoCapture cap("input/solidWhiteRight.mp4");
         
         // Error handling
         if (cap.isOpened() == false)
         {
-            std::cout << "Cannot open video file" << std::endl;
+            std::cout << "Cannot open read video file" << std::endl;
             std::cin.get();
             return -1;
         }
@@ -70,30 +74,27 @@ int main(void)
         cv::VideoWriter writer;
         int codec = cv::VideoWriter::fourcc('M','J','P','G');
         double fps = 25; //cap.get(cv::CAP_PROP_FPS);
-        std::string writefilename = "./test.avi";
+        std::string writefilename = "./output/test.avi";
         writer.open(writefilename, codec, fps, img.size(), 1);
         
         // Error handling
         if (!writer.isOpened()) {
-            std::cout << "Cannot open video file" << std::endl;
+            std::cout << "Cannot open write video file" << std::endl;
             std::cin.get();
             return -1;
         }
         
+        std::cout << "Processing video..." << std::endl;
         while (readSuccess)
         {
-            
-            
             cv::Mat imgLines;
             imgLines = lanefinding(img);
-            
-            //cv::waitKey(0); // for debugging
-            
+                        
             writer.write(imgLines);
             
-            readSuccess = cap.read(img); // read a new frame form video
-
+            readSuccess = cap.read(img); // read a new frame from video
         }
+        
         
     }
     
