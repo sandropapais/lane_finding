@@ -4,23 +4,20 @@ Longer description here...
 */
 
 #include <iostream>
-#include <opencv2/core/utility.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-
-//using namespace cv;
-
-cv::Mat lanefinding(cv::Mat &img);
+#include "opencv2/core/utility.hpp"
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/highgui.hpp"
+#include "lane_detector.hpp"
 
 int main(void)
 {
     enum mode {modeImages, modeVideo};
-    
+
     mode setMode = modeVideo;
     
-    // Mode 1: Image Processing (debug mode)
-    // Read image, process, show pipeline, wait for keystoke
+    // Mode 1: Image Processing (debug flag required)
+    // Read, process, and show images
     if (setMode == modeImages) 
     {
         // Get all images
@@ -41,10 +38,10 @@ int main(void)
                 return -1;
             }
                 
+            // Call image processing function
             lanefinding(img);
-            
             cv::waitKey(0);
-            
+                        
         }
     }
     // Mode 2: Video Processing 
@@ -64,11 +61,7 @@ int main(void)
         
         // Initialize variables
         cv::Mat img;
-        //bool readSuccess = true;
         bool readSuccess = cap.read(img); // read first image
-        
-        // skip to 8 seconds
-        //cap.set(cv::CAP_PROP_POS_MSEC, 8000); 
         
         // Create video write file
         cv::VideoWriter writer;
